@@ -1,0 +1,21 @@
+meta {
+  name: Test Case 14 - Retrieve Private Card With Wrong Pin (AC04)
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/creator-cards/vip-rate-card?access_code=WRONG1
+  body: none
+  auth: none
+}
+
+query {
+  access_code: WRONG1
+}
+
+assert {
+  res.status: eq 403
+  res.body.status: eq error
+  res.body.code: eq AC04
+}

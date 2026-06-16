@@ -1,0 +1,26 @@
+meta {
+  name: Test Case 8 - Missing Access Code on Private Card (AC01)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/creator-cards
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Secret Card",
+    "creator_reference": "crt_q1w2e3r4t5y6u7i8",
+    "status": "published",
+    "access_type": "private"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.status: eq error
+  res.body.code: eq AC01
+}

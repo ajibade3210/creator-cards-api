@@ -1,0 +1,740 @@
+{
+	"info": {
+		"_postman_id": "8482613f-d31b-48ad-80eb-14b3017f8d68",
+		"name": "Creator Cards API Assessment",
+		"description": "API collection covering all required assessment scenarios for the Creator Cards microservice, including valid/invalid test cases and business rule errors.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Valid Scenarios",
+			"item": [
+				{
+					"name": "Test Case 1 - Full Creation (Public Card)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is success status\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql(\"success\");",
+									"});",
+									"pm.test(\"Exposes id, never _id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.id).to.exist;",
+									"    pm.expect(jsonData.data._id).to.not.exist;",
+									"});",
+									"pm.test(\"access_type defaults to public\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.access_type).to.eql(\"public\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"George Cooks\",\n  \"description\": \"Weekly cooking podcast\",\n  \"slug\": \"george-cooks\",\n  \"creator_reference\": \"crt_8f2k1m9x4p7w3q5z\",\n  \"links\": [\n    {\n      \"title\": \"YouTube\",\n      \"url\": \"https://youtube.com/@georgecooks\"\n    }\n  ],\n  \"service_rates\": {\n    \"currency\": \"NGN\",\n    \"rates\": [\n      {\n        \"name\": \"IG Story Post\",\n        \"description\": \"One story mention\",\n        \"amount\": 5000000\n      }\n    ]\n  },\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 2 - Slug Auto-generation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Slug is auto-generated correctly\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.slug).to.eql(\"ada-designs-things\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Ada Designs Things\",\n  \"creator_reference\": \"crt_a1b2c3d4e5f6g7h8\",\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 3 - Private Card Creation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Access code is returned in creation response\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.access_code).to.eql(\"A1B2C3\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"VIP Rate Card\",\n  \"creator_reference\": \"crt_x9y8z7w6v5u4t3s2\",\n  \"status\": \"published\",\n  \"access_type\": \"private\",\n  \"access_code\": \"A1B2C3\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auxiliary: Create Draft Card (Setup for Retrieval Check)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Status is draft\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.status).to.eql(\"draft\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"My Draft Card\",\n  \"slug\": \"my-draft-card\",\n  \"creator_reference\": \"crt_d1r2a3f4t5c6a7r8\",\n  \"status\": \"draft\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 4 - Retrieve Public Published Card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Exposes id, never _id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.id).to.exist;",
+									"    pm.expect(jsonData.data._id).to.not.exist;",
+									"});",
+									"pm.test(\"access_code is omitted/stripped\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.access_code).to.not.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards/george-cooks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards",
+								"george-cooks"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 5 - Retrieve Private Card with Correct Pin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"access_code is omitted/stripped\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.access_code).to.not.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards/vip-rate-card?access_code=A1B2C3",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards",
+								"vip-rate-card"
+							],
+							"query": [
+								{
+									"key": "access_code",
+									"value": "A1B2C3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 6 - Delete Card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"deleted is a timestamp\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.deleted).to.be.a(\"number\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"creator_reference\": \"crt_a1b2c3d4e5f6g7h8\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards/ada-designs-things",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards",
+								"ada-designs-things"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Invalid Scenarios (Error Cases)",
+			"item": [
+				{
+					"name": "Test Case 7 - Duplicate Slug (SL02)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"Error code is SL02\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql(\"SL02\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Another George\",\n  \"slug\": \"george-cooks\",\n  \"creator_reference\": \"crt_m1n2b3v4c5x6z7l8\",\n  \"status\": \"published\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 8 - Missing Access Code on Private Card (AC01)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"Error code is AC01\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql(\"AC01\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Secret Card\",\n  \"creator_reference\": \"crt_q1w2e3r4t5y6u7i8\",\n  \"status\": \"published\",\n  \"access_type\": \"private\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 9 - Access Code Provided on Public Card (AC05)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"Error code is AC05\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql(\"AC05\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Public Card\",\n  \"creator_reference\": \"crt_q1w2e3r4t5y6u7i8\",\n  \"status\": \"published\",\n  \"access_type\": \"public\",\n  \"access_code\": \"A1B2C3\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 10 - Framework Validation Failure (Status Archived)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"Response is error status\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql(\"error\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Bad Status Card\",\n  \"creator_reference\": \"crt_q1w2e3r4t5y6u7i8\",\n  \"status\": \"archived\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 11 - Retrieve Non-Existent Card (NF01)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"Error code is NF01\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql(\"NF01\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards/does-not-exist-123",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards",
+								"does-not-exist-123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 12 - Retrieve Draft Card (NF02)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"Error code is NF02\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql(\"NF02\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards/my-draft-card",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards",
+								"my-draft-card"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 13 - Retrieve Private Card Without Pin (AC03)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"pm.test(\"Error code is AC03\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql(\"AC03\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards/vip-rate-card",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards",
+								"vip-rate-card"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 14 - Retrieve Private Card With Wrong Pin (AC04)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 403\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"pm.test(\"Error code is AC04\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql(\"AC04\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards/vip-rate-card?access_code=WRONG1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards",
+								"vip-rate-card"
+							],
+							"query": [
+								{
+									"key": "access_code",
+									"value": "WRONG1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 15 - Delete Non-Existent Card (NF01)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"Error code is NF01\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql(\"NF01\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"creator_reference\": \"crt_q1w2e3r4t5y6u7i8\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards/does-not-exist-123",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards",
+								"does-not-exist-123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test Case 16 - Retrieve Deleted Card (NF01)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"pm.test(\"Error code is NF01\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.code).to.eql(\"NF01\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/creator-cards/ada-designs-things",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"creator-cards",
+								"ada-designs-things"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Test Case 15 - Delete Non-Existent Card (NF01)
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/creator-cards/does-not-exist-123
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "creator_reference": "crt_q1w2e3r4t5y6u7i8"
+  }
+}
+
+assert {
+  res.status: eq 404
+  res.body.status: eq error
+  res.body.code: eq NF01
+}
