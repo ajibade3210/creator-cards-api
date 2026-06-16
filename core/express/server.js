@@ -291,7 +291,7 @@ function Server(serverConfig = {}) {
       });
     });
     app.listen(port, () => {
-      appLogger(`Listening at port ${port}`);
+      appLogger.info(`Listening at port ${port}`);
     });
   }
 

@@ -40,24 +40,23 @@ The Creator Cards API is a backend microservice built using the custom internal 
 
 ### API Test Collections
 
-To quickly validate the API endpoints and custom error responses before submission, two complete test collections containing all 16 specified test cases (both valid scenarios and business rule error cases) are included:
+To quickly validate the API endpoints and custom error responses before submission, a complete Postman collection containing all 16 specified test cases (both valid scenarios and business rule error cases) is included:
 
-1. **Postman Collection**: [creator-cards.postman_collection.json](./specs/collections/creator-cards.postman_collection.json)
-   - Imports directly into Postman, Bruno, Insomnia, or VS Code Thunder Client.
+* **Postman Collection**: [creator-cards.postman_collection.json](./specs/collections/creator-cards.postman_collection.json)
+   - Imports directly into Postman, Insomnia, or VS Code Thunder Client.
    - Contains automatic test assertions checking for expected HTTP status codes, correct response wrappers, and proper custom error codes.
-
-2. **Bruno Collection**: [creator-cards-bruno/](./specs/collections/creator-cards-bruno)
-   - Native Bruno collection folder containing text-based request configurations and assertions.
-   - Simply open this directory in Bruno to run the suite of tests.
 
 #### Running the API Collections
 1. Make sure your server is running locally:
    ```bash
-   npm run dev
+   npm run start
    ```
-2. Import either collection into your tool of choice (e.g., Postman or Bruno).
-3. The collections default to `baseUrl = http://localhost:3000`. You can customize this variable inside the collection/environment settings if needed.
-4. Run the requests sequentially (from top to bottom) to ensure state matches (e.g. creating cards before retrieving or deleting them).
+2. Import the Postman collection and run it:
+   - Open **Postman**.
+   - Click **Import** and upload [creator-cards.postman_collection.json](./specs/collections/creator-cards.postman_collection.json).
+   - Define the `baseUrl` variable in your environment settings (defaults to `http://localhost:3000`).
+   - Run the requests sequentially (from top to bottom) to ensure state matches (e.g., creating cards before retrieving or deleting them).
+
 
 ---
 
@@ -652,7 +651,7 @@ The framework automatically formats errors:
 
 **1. Start your server:**
 ```bash
-npm run dev
+npm run start
 ```
 
 > 💡 **For complete setup instructions, see the [Getting Started](./documentation.md#getting-started) section in documentation.md**
