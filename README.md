@@ -11,6 +11,25 @@ This repository contains the complete implementation for the Creator Cards micro
 
 The Creator Cards API is a backend microservice built using the custom internal framework conventions of the template, Mongoose for database persistence, and Mocha/Chai for testing. 
 
+### API Test Collections
+
+To quickly validate the API endpoints and custom error responses before submission, a complete Postman collection containing all 16 specified test cases (both valid scenarios and business rule error cases) is included:
+
+* **Postman Collection**: [creator-cards.postman_collection.json](./specs/collections/creator-cards.postman_collection.json)
+   - Imports directly into Postman, Insomnia, or VS Code Thunder Client.
+   - Contains automatic test assertions checking for expected HTTP status codes, correct response wrappers, and proper custom error codes.
+
+#### Running the API Collections
+1. Make sure your server is running locally:
+   ```bash
+   npm run start
+   ```
+2. Import the Postman collection and run it:
+   - Open **Postman**.
+   - Click **Import** and upload [creator-cards.postman_collection.json](./specs/collections/creator-cards.postman_collection.json).
+   - Define the `baseUrl` variable in your environment settings (defaults to `http://localhost:3000`).
+   - Run the requests sequentially (from top to bottom) to ensure state matches (e.g., creating cards before retrieving or deleting them).
+
 ### Implemented Endpoints
 1. **Create Creator Card (`POST /creator-cards`)**: Creates profile cards for creators. Includes slug auto-generation from the title (if omitted) using only vanilla string manipulation. Performs validation on custom business logic (e.g., uniqueness of slug, conditional private access code requirements).
 2. **Public Card Retrieval (`GET /creator-cards/:slug`)**: Retrieves a single card by its slug. Strictly respects card status (draft vs published) and access controls (public vs private). Private cards require the `access_code` query parameter.
@@ -37,26 +56,6 @@ The Creator Cards API is a backend microservice built using the custom internal 
 | **`NF02`** | 404 | "Creator card not found" (Card exists but is a draft) |
 | **`AC03`** | 403 | "This card is private. An access code is required" |
 | **`AC04`** | 403 | "Invalid access code" |
-
-### API Test Collections
-
-To quickly validate the API endpoints and custom error responses before submission, a complete Postman collection containing all 16 specified test cases (both valid scenarios and business rule error cases) is included:
-
-* **Postman Collection**: [creator-cards.postman_collection.json](./specs/collections/creator-cards.postman_collection.json)
-   - Imports directly into Postman, Insomnia, or VS Code Thunder Client.
-   - Contains automatic test assertions checking for expected HTTP status codes, correct response wrappers, and proper custom error codes.
-
-#### Running the API Collections
-1. Make sure your server is running locally:
-   ```bash
-   npm run start
-   ```
-2. Import the Postman collection and run it:
-   - Open **Postman**.
-   - Click **Import** and upload [creator-cards.postman_collection.json](./specs/collections/creator-cards.postman_collection.json).
-   - Define the `baseUrl` variable in your environment settings (defaults to `http://localhost:3000`).
-   - Run the requests sequentially (from top to bottom) to ensure state matches (e.g., creating cards before retrieving or deleting them).
-
 
 ---
 
