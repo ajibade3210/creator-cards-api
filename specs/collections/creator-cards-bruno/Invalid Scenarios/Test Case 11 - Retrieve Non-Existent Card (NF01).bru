@@ -1,0 +1,17 @@
+meta {
+  name: Test Case 11 - Retrieve Non-Existent Card (NF01)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/creator-cards/does-not-exist-123
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 404
+  res.body.status: eq error
+  res.body.code: eq NF01
+}

@@ -1,6 +1,69 @@
-# Assessment Codebase Guide
+# Creator Cards API - Assessment Submission
 
-This guide will help you understand the codebase architecture and set up your services, endpoints, and middleware correctly. This is NOT a solution to the assessment - it's a reference guide to help you implement your own solution following the codebase conventions.
+This repository contains the complete implementation for the Creator Cards microservice API.
+
+> 🌐 **Deployed Base URL:** `[Insert Deployed Base URL Here]`  
+> *(Endpoints live at the root, e.g., `POST /creator-cards`, `GET /creator-cards/:slug`, `DELETE /creator-cards/:slug` with no versioning prefixes)*
+
+---
+
+## Solution Overview
+
+The Creator Cards API is a backend microservice built using the custom internal framework conventions of the template, Mongoose for database persistence, and Mocha/Chai for testing. 
+
+### Implemented Endpoints
+1. **Create Creator Card (`POST /creator-cards`)**: Creates profile cards for creators. Includes slug auto-generation from the title (if omitted) using only vanilla string manipulation. Performs validation on custom business logic (e.g., uniqueness of slug, conditional private access code requirements).
+2. **Public Card Retrieval (`GET /creator-cards/:slug`)**: Retrieves a single card by its slug. Strictly respects card status (draft vs published) and access controls (public vs private). Private cards require the `access_code` query parameter.
+3. **Delete Creator Card (`DELETE /creator-cards/:slug`)**: Soft-deletes a card by updating the `deleted` field to a Unix timestamp. Once deleted, the card is no longer publicly retrievable.
+
+### Core Business Rules & Precedence Order
+- **ID Serialization**: The internal MongoDB `_id` (stored as a ULID) is mapped and serialized as `id` in all API responses.
+- **`access_code` Security**: The `access_code` is returned only during creation (so the creator knows it) but is strictly omitted/stripped from all public retrieval GET responses.
+- **Retrieval Precedence Check Order**:
+  1. Card not found or soft-deleted → `NF01` (404 Not Found)
+  2. Card status is `draft` → `NF02` (404 Not Found)
+  3. Card is `private` and no `access_code` is supplied → `AC03` (403 Forbidden)
+  4. Card is `private` and wrong `access_code` is supplied → `AC04` (403 Forbidden)
+  5. All checks pass → `200 OK`
+
+### Custom Business Error Codes
+
+| Code | HTTP Status | Error Message |
+|---|---|---|
+| **`SL02`** | 400 | "Slug is already taken" |
+| **`AC01`** | 400 | "access_code is required when access_type is private" |
+| **`AC05`** | 400 | "access_code can only be set on private cards" |
+| **`NF01`** | 404 | "Creator card not found" (Or card has been soft-deleted) |
+| **`NF02`** | 404 | "Creator card not found" (Card exists but is a draft) |
+| **`AC03`** | 403 | "This card is private. An access code is required" |
+| **`AC04`** | 403 | "Invalid access code" |
+
+### API Test Collections
+
+To quickly validate the API endpoints and custom error responses before submission, two complete test collections containing all 16 specified test cases (both valid scenarios and business rule error cases) are included:
+
+1. **Postman Collection**: [creator-cards.postman_collection.json](./specs/collections/creator-cards.postman_collection.json)
+   - Imports directly into Postman, Bruno, Insomnia, or VS Code Thunder Client.
+   - Contains automatic test assertions checking for expected HTTP status codes, correct response wrappers, and proper custom error codes.
+
+2. **Bruno Collection**: [creator-cards-bruno/](./specs/collections/creator-cards-bruno)
+   - Native Bruno collection folder containing text-based request configurations and assertions.
+   - Simply open this directory in Bruno to run the suite of tests.
+
+#### Running the API Collections
+1. Make sure your server is running locally:
+   ```bash
+   npm run dev
+   ```
+2. Import either collection into your tool of choice (e.g., Postman or Bruno).
+3. The collections default to `baseUrl = http://localhost:3000`. You can customize this variable inside the collection/environment settings if needed.
+4. Run the requests sequentially (from top to bottom) to ensure state matches (e.g. creating cards before retrieving or deleting them).
+
+---
+
+## Original Codebase Guide
+
+This guide will help you understand the codebase architecture and set up your services, endpoints, and middleware correctly.
 
 > 📖 **For comprehensive architecture documentation, see [documentation.md](./documentation.md)**
 

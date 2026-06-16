@@ -1,0 +1,17 @@
+meta {
+  name: Test Case 12 - Retrieve Draft Card (NF02)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/creator-cards/my-draft-card
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 404
+  res.body.status: eq error
+  res.body.code: eq NF02
+}

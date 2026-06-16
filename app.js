@@ -1,22 +1,21 @@
 /* eslint-disable global-require */
 /* eslint-disable import/no-dynamic-require */
-if (!process.env.__ALREADY_BOOTSTRAPPED_ENVS) require('dotenv').config();
-
 const fs = require('fs');
 const { createServer } = require('@app-core/server');
 const { createConnection } = require('@app-core/mongoose');
 const { createQueue } = require('@app-core/queue');
+const config = require('./config/env');
 
-const canLogEndpointInformation = process.env.CAN_LOG_ENDPOINT_INFORMATION;
+const canLogEndpointInformation = config.CAN_LOG_ENDPOINT_INFORMATION;
 
 createConnection({
-  uri: process.env.MONGODB_URI,
+  uri: config.MONGODB_URI,
 });
 
 createQueue();
 
 const server = createServer({
-  port: process.env.PORT,
+  port: config.PORT,
   JSONLimit: '150mb',
   enableCors: true,
 });
@@ -24,6 +23,9 @@ const server = createServer({
 const ENDPOINT_CONFIGS = [
   {
     path: './endpoints/onboarding/',
+  },
+  {
+    path: './endpoints/creator-cards/',
   },
 ];
 
@@ -82,8 +84,8 @@ function setupEndpointHandlers(basePath, options = {}) {
   });
 }
 
-ENDPOINT_CONFIGS.forEach((config) => {
-  setupEndpointHandlers(config.path, config.options);
+ENDPOINT_CONFIGS.forEach((endpointConfig) => {
+  setupEndpointHandlers(endpointConfig.path, endpointConfig.options);
 });
 
 server.startServer();

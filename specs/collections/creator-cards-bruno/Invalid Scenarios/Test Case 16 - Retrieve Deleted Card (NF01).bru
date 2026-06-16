@@ -1,0 +1,17 @@
+meta {
+  name: Test Case 16 - Retrieve Deleted Card (NF01)
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/creator-cards/ada-designs-things
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 404
+  res.body.status: eq error
+  res.body.code: eq NF01
+}
