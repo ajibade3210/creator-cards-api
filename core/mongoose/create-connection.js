@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { appLogger } = require('@app-core/logger');
+
 /**
  * Mongoose Connection Config
  * @typedef {Object} MongooseConnectionConfig
@@ -28,13 +30,14 @@ async function createConnection(connectionConfig) {
     try {
       let connection;
       if (isNotDefault) {
-        connection = await mongoose.createConnection(uri, connectionOptions);
+        connection = mongoose.createConnection(uri, connectionOptions);
       } else {
         ({ connection } = await mongoose.connect(uri, connectionOptions));
       }
       connectionResult.connection = connection;
+      appLogger.info('Database connected successfully');
     } catch (e) {
-      // Todo: Proper handler?
+      appLogger.error({ error: e.message }, 'Database connection failed');
       throw new Error(e.message);
     }
   }
